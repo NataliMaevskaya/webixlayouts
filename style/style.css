@@ -4,11 +4,9 @@
 .footer {
     text-align: center;
 }
-.btn-green .webix_button {
+.span-green .webix_template{
     color: green;
     font-size: 14px;
     font-weight: 400;
+    text-align: center;
 } 
-.btn-green .webix_button .webix_icon_btn {
-    color: green;
-}

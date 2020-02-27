@@ -27,11 +27,10 @@ const menuList = {
     data: menuListSet
 };
 const menuLink = {
-    view: "button",
-    type: "icon",
-    icon: "wxi-check",
-    label: "Connected",
-    css: "btn-green webix_transparent"
+    template: "<span class='webix_icon wxi-check'></span> Connected",
+    height: 30,
+    type: "clean",
+    css: "span-green"
 };
 const menu = {
     maxWidth: 200,
@@ -96,8 +95,7 @@ const form = {
     view: "form",
     width: 300,
     paddingX: 20,
-    elements: [
-        {
+    elements: [{
             template: "Edit films",
             type: "section"
         },
