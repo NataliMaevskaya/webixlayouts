@@ -1,0 +1,12 @@
+.menu {
+    background-color: #EDEFF0;
+}
+.footer {
+    text-align: center;
+}
+.span-green .webix_template{
+    color: green;
+    font-size: 14px;
+    font-weight: 400;
+    text-align: center;
+} 
