@@ -47,7 +47,6 @@ const menu = {
 const datatable = {
     view: "datatable",
     id: "datatable",
-    autoConfig: true,
     scroll: "y",
     columns: [{
             id: "title",
@@ -75,7 +74,6 @@ const datatable = {
     data: smallFilmSet
 };
 const formButtons = {
-    autoConfig: true,
     cols: [{
             view: "button",
             value: "Add new",
