@@ -86,7 +86,7 @@ const clearFieldsAndMessages = function () {
                 }
 
 
-            );
+            });
         };
         const addItemToDatatable = function () {
             if ($$("form").validate()) {
@@ -155,7 +155,7 @@ const clearFieldsAndMessages = function () {
             rules: {
                 title: webix.rules.isNotEmpty,
                 year: function (value) {
-                    return value > 1970 && value < new Date().getFullYear();
+                    return value >= 1970 && value <= new Date().getFullYear();
                 },
                 votes: function (value) {
                     return value < 100000;
