@@ -1,3 +1,5 @@
+const currentYear = new Date().getFullYear();
+
 const toolbar = {
     view: "toolbar",
     id: "toolbar",
@@ -24,8 +26,14 @@ const menuList = {
     view: "list",
     id: "list",
     template: "#title#",
+    select: true,
     scroll: false,
     css: "webix_layout_clean",
+    on:{
+        onAfterSelect:function(id){ 
+          $$(id).show();
+      }
+    },
     data: menuListSet
 };
 const menuLink = {
@@ -34,7 +42,7 @@ const menuLink = {
     type: "clean",
     css: "span-green"
 };
-const menu = {
+const sideMenu = {
     maxWidth: 200,
     minWidth: 100,
     type: "clean",
@@ -50,6 +58,7 @@ const datatable = {
     view: "datatable",
     id: "datatable",
     scroll: "y",
+    url: "../data/data.js",
     columns: [{
             id: "title",
             header: "Title",
@@ -72,9 +81,9 @@ const datatable = {
             id: "rank",
             header: "Rank",
         }
-    ],
-    data: smallFilmSet
+    ]
 };
+
 const clearFieldsAndMessages = function () {
     webix.confirm({
         text: "Do you still want to clear all fields?"
@@ -85,7 +94,7 @@ const clearFieldsAndMessages = function () {
 };
 const addItemToDatatable = function () {
     if ($$("form").validate()) {
-        const item = $$("form").getValues();
+        const item = idForm.getValues();
         $$("datatable").add(item);
         webix.message({
             text: "Data is added successfully!",
@@ -150,7 +159,7 @@ const form = {
     rules: {
         title: webix.rules.isNotEmpty,
         year: function (value) {
-            return value >= 1970 && value <= new Date().getFullYear();
+            return value >= 1970 && value <= currentYear;
         },
         votes: function (value) {
             return value < 100000;
@@ -169,11 +178,23 @@ const resizer = {
     view: "resizer"
 };
 const main = {
-    cols: [
-        menu,
-        resizer,
-        datatable,
-        form
+    animate: false,
+    cells: [{
+            id: "Dashboard",
+            cols: [datatable, form]
+        },
+        {
+            id: "Users",
+            template: "Users View"
+        },
+        {
+            id: "Products",
+            template: "Products view"
+        },
+        {
+            id: "Locations",
+            template: "Admin view"
+        }
     ]
 };
 
@@ -193,8 +214,11 @@ webix.ready(function () {
     webix.ui({
         rows: [
             toolbar,
-            main,
+            {
+                cols: [sideMenu, resizer, main]
+            },
             footer
         ]
     });
+    $$("list").select("Dashboard");
 });

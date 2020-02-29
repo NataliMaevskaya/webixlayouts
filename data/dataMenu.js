@@ -1,17 +1,17 @@
 const menuListSet = [{
-        id: 1,
+        id: "Dashboard",
         title: "Dashboard"
     },
     {
-        id: 2,
+        id: "Users",
         title: "Users"
     },
     {
-        id: 3,
+        id: "Products",
         title: "Products"
     },
     {
-        id: 4,
+        id: "Locations",
         title: "Locations"
     }
 ];
