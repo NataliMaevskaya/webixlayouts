@@ -29,10 +29,10 @@ const menuList = {
     select: true,
     scroll: false,
     css: "webix_layout_clean",
-    on:{
-        onAfterSelect:function(id){ 
-          $$(id).show();
-      }
+    on: {
+        onAfterSelect: function (id) {
+            $$(id).show();
+        }
     },
     data: menuListSet
 };
@@ -54,67 +54,67 @@ const sideMenu = {
     css: "menu"
 
 };
-const datatable = {
-    view: "datatable",
-    id: "datatable",
-    scroll: "y",
-    url: "../data/data.js",
-    columns: [{
-            id: "title",
-            header: "Title",
-            fillspace: 3
-        },
-        {
-            id: "year",
-            header: "Year",
-        },
-        {
-            id: "votes",
-            header: "Votes",
-            fillspace: 1
-        },
-        {
-            id: "rating",
-            header: "Rating",
-        },
-        {
-            id: "rank",
-            header: "Rank",
-        }
-    ]
-};
+const clearFields = function () {
+    const formId = $$("form"),
+        datatableId = $$("datatable");
 
+    formId.clear();
+    formId.clearValidation();
+    datatableId.unselectAll();
+};
 const clearFieldsAndMessages = function () {
     webix.confirm({
-        text: "Do you still want to clear all fields?"
+        text: "Form will be cleared! Continue?"
     }).then(() => {
-        $$("form").clear();
-        $$("form").clearValidation();
+        clearFields();
     });
 };
-const addItemToDatatable = function () {
-    if ($$("form").validate()) {
-        const item = idForm.getValues();
-        $$("datatable").add(item);
-        webix.message({
-            text: "Data is added successfully!",
-            type: "success"
-        });
+const addOrUpdateItem = function () {
+    const formId = $$("form"),
+        datatableId = $$("datatable");
+    formId.clearValidation();
+    if (formId.validate()) {
 
+        const itemData = formId.getValues(),
+            itemId = itemData.id;
+        if (itemId) {
+            datatableId.updateItem(itemId, itemData);
+            clearFields();
+            webix.message({
+                text: "Data is updated successfully!",
+                type: "success"
+            });
+        } else {
+            datatableId.add(itemData);
+            clearFields();
+            webix.message({
+                text: "Data is added successfully!",
+                type: "success"
+            });
+        }
+    } else {
+        webix.message({
+            text: "Wrong data in form! Check please!",
+            type: "warning"
+        });
     }
 };
+
+
 const formButtons = {
     cols: [{
             view: "button",
+            id: "addBtn",
             value: "Add new",
             css: "webix_primary",
-            click: addItemToDatatable
+            click: addOrUpdateItem
         },
         {
             width: 10
         },
         {
             view: "button",
+            id: "clearBtn",
             value: "Clear",
             click: clearFieldsAndMessages
         }
@@ -145,13 +145,13 @@ const form = {
             view: "text",
             label: "Rating",
             name: "rating",
-            invalidMessage: "Cannot be empty or 0"
+            invalidMessage: "Field cannot be empty or 0."
         },
         {
             view: "text",
             label: "Votes",
             name: "votes",
-            invalidMessage: "Cannot be less than 100000"
+            invalidMessage: "Cannot be more than 100000"
         },
         formButtons,
         {}
@@ -159,16 +159,85 @@ const form = {
     rules: {
         title: webix.rules.isNotEmpty,
         year: function (value) {
-            return value >= 1970 && value <= currentYear;
+            return value >= 1970 && value <= currentYear && webix.rules.isNumber(value);
         },
         votes: function (value) {
-            return value < 100000;
+            return value <= 100000 && webix.rules.isNumber(value);
         },
         rating: function (value) {
             return webix.rules.isNotEmpty(value) && value !== "0";
         }
     }
 };
+
+
+const valuesToForm = function (id) {
+    const selectedItemValues = $$("datatable").getItem(id);
+    $$("form").setValues(selectedItemValues);
+};
+
+
+const datatable = {
+    view: "datatable",
+    id: "datatable",
+    scroll: "y",
+    select: true,
+    url: "../data/data.js",
+    hover: "hover-style",
+    columns: [
+        {
+            id:"id",
+            header: "",
+            width: 50,
+            css: "table-header"
+        },
+        {
+            id: "title",
+            header: "Film Title",
+            fillspace: true
+        },
+        {
+            id: "year",
+            header: "Released",
+        },
+        {
+            id: "votes",
+            header: "Votes"
+        },
+        {
+            id: "delete",
+            header: "",
+            template: "{common.trashIcon()}"
+
+        }
+    ],
+    onClick: {
+        "wxi-trash": function (e, id) {
+            this.remove(id);
+            if ($$("form").getValues()) {
+                clearFields();
+            }
+            return false;
+        }
+    },
+    on: {
+        onAfterSelect: function (id) {
+            valuesToForm(id);
+            $$("form").clearValidation();
+        }
+    },
+    scheme: {
+        $init: function (obj) {
+            let votes = obj.votes;
+            if (votes.includes(",")) {
+                obj.votes = parseFloat(votes.replace(",", ".")) * 1000;
+            }
+        }
+    }
+};
+
+
+
 const footer = {
     template: "The software is provided by <a href='https://webix.com/'>https://webix.com/</a>. All rights reserved (c)",
     height: 38,
@@ -180,19 +249,19 @@ const resizer = {
 const main = {
     animate: false,
     cells: [{
-            id: "Dashboard",
+            id: "dashboard",
             cols: [datatable, form]
         },
         {
-            id: "Users",
+            id: "users",
             template: "Users View"
         },
         {
-            id: "Products",
+            id: "products",
             template: "Products view"
         },
         {
-            id: "Locations",
+            id: "locations",
             template: "Admin view"
         }
     ]
@@ -220,5 +289,5 @@ webix.ready(function () {
             footer
         ]
     });
-    $$("list").select("Dashboard");
+    $$("list").select("dashboard");
 });

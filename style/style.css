@@ -10,3 +10,9 @@
     font-weight: 400;
     text-align: center;
 } 
+.table-header {
+    background-color: #F4F5F9;
+}
+.hover-style {
+    background-color: #EDEFF0;
+}
