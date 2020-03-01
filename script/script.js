@@ -100,7 +100,6 @@ const addOrUpdateItem = function () {
     }
 };
 
-
 const formButtons = {
     cols: [{
             view: "button",
@@ -120,6 +119,7 @@ const formButtons = {
         }
     ]
 };
+
 const form = {
     view: "form",
     id: "form",
@@ -170,12 +170,10 @@ const form = {
     }
 };
 
-
 const valuesToForm = function (id) {
     const selectedItemValues = $$("datatable").getItem(id);
     $$("form").setValues(selectedItemValues);
 };
-
 
 const datatable = {
     view: "datatable",
@@ -185,47 +183,7 @@ const datatable = {
     url: "../data/data.js",
     hover: "hover-style",
     sort: "multi",
-    columns: [{
-            id: "id",
-            header: "",
-            width: 50,
-            css: "table-header"
-        },
-        {
-            id: "title",
-            header: [
-                "Film Title", {
-                    content: "textFilter"
-                }
-            ],
-            fillspace: true,
-            sort: "string"
-        },
-        {
-            id: "year",
-            header: [
-                "Released", {
-                    content: "numberFilter"
-                }
-            ],
-            sort: "int"
-        },
-        {
-            id: "votes",
-            header: [
-                "Votes", {
-                    content: "numberFilter"
-                }
-            ],
-            sort: "int"
-        },
-        {
-            id: "delete",
-            header: "",
-            template: "{common.trashIcon()}"
-
-        }
-    ],
+    columns: datatableColumns,
     onClick: {
         "wxi-trash": function (e, id) {
             this.remove(id);
