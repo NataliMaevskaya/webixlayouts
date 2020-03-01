@@ -184,25 +184,40 @@ const datatable = {
     select: true,
     url: "../data/data.js",
     hover: "hover-style",
-    columns: [
-        {
-            id:"id",
+    sort: "multi",
+    columns: [{
+            id: "id",
             header: "",
             width: 50,
             css: "table-header"
         },
         {
             id: "title",
-            header: "Film Title",
-            fillspace: true
+            header: [
+                "Film Title", {
+                    content: "textFilter"
+                }
+            ],
+            fillspace: true,
+            sort: "string"
         },
         {
             id: "year",
-            header: "Released",
+            header: [
+                "Released", {
+                    content: "numberFilter"
+                }
+            ],
+            sort: "int"
         },
         {
             id: "votes",
-            header: "Votes"
+            header: [
+                "Votes", {
+                    content: "numberFilter"
+                }
+            ],
+            sort: "int"
         },
         {
             id: "delete",
