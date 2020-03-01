@@ -22,6 +22,7 @@ const toolbar = {
         }
     ]
 };
+
 const menuList = {
     view: "list",
     id: "list",
@@ -36,12 +37,14 @@ const menuList = {
     },
     data: menuListSet
 };
+
 const menuLink = {
     template: "<span class='webix_icon wxi-check'></span> Connected",
     height: 30,
     type: "clean",
     css: "span-green"
 };
+
 const sideMenu = {
     maxWidth: 200,
     minWidth: 100,
@@ -54,6 +57,8 @@ const sideMenu = {
     css: "menu"
 
 };
+
+// clearing fields, validation, selection of all items
 const clearFields = function () {
     const formId = $$("form"),
         datatableId = $$("datatable");
@@ -62,6 +67,8 @@ const clearFields = function () {
     formId.clearValidation();
     datatableId.unselectAll();
 };
+
+// confirmation for clearing all fieldes of form is required
 const clearFieldsAndMessages = function () {
     webix.confirm({
         text: "Form will be cleared! Continue?"
@@ -69,6 +76,8 @@ const clearFieldsAndMessages = function () {
         clearFields();
     });
 };
+
+// updating when id is defined, else add new item
 const addOrUpdateItem = function () {
     const formId = $$("form"),
         datatableId = $$("datatable");
@@ -170,6 +179,7 @@ const form = {
     }
 };
 
+// adding item's data to form fields
 const valuesToForm = function (id) {
     const selectedItemValues = $$("datatable").getItem(id);
     $$("form").setValues(selectedItemValues);
@@ -209,16 +219,69 @@ const datatable = {
     }
 };
 
-
-
 const footer = {
     template: "The software is provided by <a href='https://webix.com/'>https://webix.com/</a>. All rights reserved (c)",
     height: 38,
     css: "footer"
 };
+
 const resizer = {
     view: "resizer"
 };
+
+const usersList = {
+    view: "list",
+    id: "usersList",
+    template: "#name# from #country# <span class='webix_icon wxi-close btn-right '></span>",
+    select: true,
+    css: "first-five-items",
+    onClick: {
+        "wxi-close": function (e, id) {
+            this.remove(id);
+            return false;
+        }
+    },
+    // data: webix.copy(users) if in dataUsers.js set const users
+    url: "../data/dataUsers.js"
+};
+
+const usersSortFilter = {
+    padding: 10,
+    cols: [{
+            view: "text",
+            id: "filterUsersList"
+        },
+        {
+            view: "button",
+            id: "sortAscBtn",
+            width: 150,
+            value: "Sort asc",
+            css: "webix_primary",
+
+        },
+        {
+            view: "button",
+            id: "sortDescBtn",
+            width: 150,
+            value: "Sort desc",
+            css: "webix_primary",
+        }
+    ]
+};
+
+const usersChart = {
+    view: "chart",
+    id: "usersChart",
+    type: "bar",
+    value: "#age#",
+    barWidth:35,
+    xAxis: {
+        template: "#age#",
+        title: "Age"
+    },
+    url: "../data/dataUsers.js"
+};
+
 const main = {
     animate: false,
     cells: [{
@@ -227,7 +290,7 @@ const main = {
         },
         {
             id: "users",
-            template: "Users View"
+            rows: [usersSortFilter, usersList, usersChart]
         },
         {
             id: "products",
@@ -263,4 +326,26 @@ webix.ready(function () {
         ]
     });
     $$("list").select("dashboard");
+
+    // filtering user's data
+    const usersList = $$("usersList");
+    $$("filterUsersList").attachEvent("onTimedKeypress", function () {
+        const filterText = this.getValue().toLowerCase();
+
+        usersList.filter(function (obj) {
+            const strForSearch = (obj.name + obj.country).toLowerCase();
+            return (strForSearch.indexOf(filterText) !== -1);
+        });
+    });
+
+    // sorting users by age ascending
+    $$("sortAscBtn").attachEvent("onItemClick", function () {
+        usersList.sort("#age#", "asc", "int");
+    });
+
+    // sorting users by age descending
+    $$("sortDescBtn").attachEvent("onItemClick", function () {
+        usersList.sort("#age#", "desc", "int");
+    });
+
 });
