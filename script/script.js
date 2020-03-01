@@ -241,8 +241,8 @@ const usersList = {
             return false;
         }
     },
-    // data: webix.copy(users) if in dataUsers.js set const users
-    url: "../data/dataUsers.js"
+    data: webix.copy(users)
+    // url: "../data/dataUsers.js"
 };
 
 const usersSortFilter = {
@@ -274,13 +274,38 @@ const usersChart = {
     id: "usersChart",
     type: "bar",
     value: "#age#",
-    barWidth:35,
+    barWidth: 35,
     xAxis: {
         template: "#age#",
         title: "Age"
     },
-    url: "../data/dataUsers.js"
+    data: webix.copy(users)
 };
+
+const treetable = {
+    view: "treetable",
+    id: "treetable",
+    scroll: "y",
+    select: "cell",
+    columns: [{
+            id: "id",
+            header: "",
+            width: 80
+        },
+        {
+            id: "title",
+            header: "Title",
+            fillspace: 2,
+            template: "{common.treetable()} #title#"
+        },
+        {
+            id: "price",
+            header: "Price",
+            fillspace: 2,
+        }
+    ],
+    data: products
+}
 
 const main = {
     animate: false,
@@ -294,7 +319,7 @@ const main = {
         },
         {
             id: "products",
-            template: "Products view"
+            rows: [treetable]
         },
         {
             id: "locations",
@@ -338,14 +363,17 @@ webix.ready(function () {
         });
     });
 
-    // sorting users by age ascending
+    // sorting users by name ascending
     $$("sortAscBtn").attachEvent("onItemClick", function () {
-        usersList.sort("#age#", "asc", "int");
+        usersList.sort("#name#", "asc", "string");
+        // usersList.sort("#age#", "asc", "int");
     });
 
-    // sorting users by age descending
+    // sorting users by name descending
     $$("sortDescBtn").attachEvent("onItemClick", function () {
-        usersList.sort("#age#", "desc", "int");
+
+        usersList.sort("#name#", "desc", "string");
+        // usersList.sort("#age#", "desc", "int");
     });
 
 });
