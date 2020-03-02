@@ -249,7 +249,17 @@ const usersSortFilter = {
     padding: 10,
     cols: [{
             view: "text",
-            id: "filterUsersList"
+            id: "filterUsersList",
+            on: {
+                onTimedKeypress: function () {
+                    const filterText = this.getValue().toLowerCase(),
+                        usersList = $$("usersList");
+
+                    usersList.filter(function (obj) {
+                        return obj.name.toLowerCase().indexOf(filterText) !== -1 || obj.country.toLowerCase().indexOf(filterText) !== -1;
+                    });
+                }
+            }
         },
         {
             view: "button",
@@ -257,7 +267,12 @@ const usersSortFilter = {
             width: 150,
             value: "Sort asc",
             css: "webix_primary",
-
+            on: {
+                onItemClick: function () {
+                    const usersList = $$("usersList");
+                    usersList.sort("#name#", "asc", "string");
+                }
+            }
         },
         {
             view: "button",
@@ -265,8 +280,16 @@ const usersSortFilter = {
             width: 150,
             value: "Sort desc",
             css: "webix_primary",
+            on: {
+                onItemClick: function () {
+                    const usersList = $$("usersList");
+                    usersList.sort("#name#", "desc", "string");
+                }
+            }
         }
-    ]
+    ],
+
+
 };
 
 const usersChart = {
@@ -356,27 +379,5 @@ webix.ready(function () {
         ]
     });
     $$("list").select("dashboard");
-
-    // filtering user's data
-    $$("filterUsersList").attachEvent("onTimedKeypress", function () {
-        const filterText = this.getValue().toLowerCase();
-
-        usersList.filter(function (obj) {
-            return obj.name.toLowerCase().indexOf(filterText) !== -1 || obj.country.toLowerCase().indexOf(filterText) !== -1;
-        });
-    });
-
-    const usersList = $$("usersList");
-
-    // sorting users by name ascending
-    $$("sortAscBtn").attachEvent("onItemClick", function () {
-        usersList.sort("#name#", "asc", "string");
-    });
-
-    // sorting users by name descending
-    $$("sortDescBtn").attachEvent("onItemClick", function () {
-
-        usersList.sort("#name#", "desc", "string");
-    });
 
 });
