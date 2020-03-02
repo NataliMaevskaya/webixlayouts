@@ -303,7 +303,13 @@ const treetable = {
             header: "Price",
             fillspace: 2,
         }
-    ]
+    ],
+    url: "../data/dataProducts.js",
+    on: {
+        onAfterLoad: function () {
+            this.openAll();
+        }
+    }
 };
 
 const main = {
@@ -371,12 +377,6 @@ webix.ready(function () {
     $$("sortDescBtn").attachEvent("onItemClick", function () {
 
         usersList.sort("#name#", "desc", "string");
-    });
-
-    const treetableId = $$("treetable");
-    // openning all branches of treetable
-    treetableId.load("../data/dataProducts.js").then(function () {
-        treetableId.openAll();
     });
 
 });
