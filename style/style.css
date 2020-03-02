@@ -10,3 +10,16 @@
     font-weight: 400;
     text-align: center;
 } 
+.table-header {
+    background-color: #F4F5F9;
+}
+.hover-style {
+    background-color: #EDEFF0;
+}
+.btn-right {
+    float:right;
+    line-height: 36px;
+}
+.first-five-items .webix_list_item:nth-child(-n+5){
+    background-color: #F4F5F9;
+} 
