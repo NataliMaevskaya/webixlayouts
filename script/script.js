@@ -197,8 +197,8 @@ const datatable = {
     onClick: {
         "wxi-trash": function (e, id) {
             this.remove(id);
-            const itemIdNumber = Number(id);
-            if ($$("form").getValues().id === itemIdNumber) {
+            const values = $$("form").getValues();
+            if (id.row === values.id) {
                 clearFields();
             }
             return false;
