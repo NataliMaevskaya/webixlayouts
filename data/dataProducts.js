@@ -1,7 +1,6 @@
-const products = [{
+[{
 		"id": "1",
 		"title": "Cinema",
-		"open":true,
 		"data": [{
 				"id": "1.1",
 				"title": "Standard Ticket",
@@ -17,7 +16,6 @@ const products = [{
 	{
 		"id": "2",
 		"title": "Cafe",
-		"open":true,
 		"data": [{
 				"id": "2.1",
 				"title": "Cola",
@@ -38,7 +36,6 @@ const products = [{
 	{
 		"id": "3",
 		"title": "Other",
-		"open":true,
 		"data": [{
 				"id": "3.1",
 				"title": "Flowers",
@@ -51,4 +48,4 @@ const products = [{
 			}
 		]
 	}
-];
+]

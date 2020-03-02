@@ -1,4 +1,4 @@
-const users = [{
+[{
 		"id": 1,
 		"name": "Alan Smith",
 		"age": 57,
@@ -70,4 +70,4 @@ const users = [{
 		"age": 28,
 		"country": "Germany"
 	}
-];
+]

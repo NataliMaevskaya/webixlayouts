@@ -197,7 +197,8 @@ const datatable = {
     onClick: {
         "wxi-trash": function (e, id) {
             this.remove(id);
-            if ($$("form").getValues()) {
+            const itemIdNumber = Number(id);
+            if ($$("form").getValues().id === itemIdNumber) {
                 clearFields();
             }
             return false;
@@ -241,8 +242,7 @@ const usersList = {
             return false;
         }
     },
-    data: webix.copy(users)
-    // url: "../data/dataUsers.js"
+    url: "../data/dataUsers.js"
 };
 
 const usersSortFilter = {
@@ -279,7 +279,7 @@ const usersChart = {
         template: "#age#",
         title: "Age"
     },
-    data: webix.copy(users)
+    url: "../data/dataUsers.js"
 };
 
 const treetable = {
@@ -303,9 +303,8 @@ const treetable = {
             header: "Price",
             fillspace: 2,
         }
-    ],
-    data: products
-}
+    ]
+};
 
 const main = {
     animate: false,
@@ -353,27 +352,31 @@ webix.ready(function () {
     $$("list").select("dashboard");
 
     // filtering user's data
-    const usersList = $$("usersList");
     $$("filterUsersList").attachEvent("onTimedKeypress", function () {
         const filterText = this.getValue().toLowerCase();
 
         usersList.filter(function (obj) {
-            const strForSearch = (obj.name + obj.country).toLowerCase();
-            return (strForSearch.indexOf(filterText) !== -1);
+            return obj.name.toLowerCase().indexOf(filterText) !== -1 || obj.country.toLowerCase().indexOf(filterText) !== -1;
         });
     });
+
+    const usersList = $$("usersList");
 
     // sorting users by name ascending
     $$("sortAscBtn").attachEvent("onItemClick", function () {
         usersList.sort("#name#", "asc", "string");
-        // usersList.sort("#age#", "asc", "int");
     });
 
     // sorting users by name descending
     $$("sortDescBtn").attachEvent("onItemClick", function () {
 
         usersList.sort("#name#", "desc", "string");
-        // usersList.sort("#age#", "desc", "int");
+    });
+
+    const treetableId = $$("treetable");
+    // openning all branches of treetable
+    treetableId.load("../data/dataProducts.js").then(function () {
+        treetableId.openAll();
     });
 
 });
