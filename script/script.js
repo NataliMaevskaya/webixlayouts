@@ -191,6 +191,32 @@ const datatable = {
             hover: "hover-style",
             sort: "multi",
             columns: datatableColumns,
+            ready: function () {
+                this.registerFilter(
+                    $$("tabbar"), {
+                        columnId: "year",
+                        compare: function (value, filter) {
+                            switch (filter) {
+                                case "all":
+                                    return value;
+                                case "old":
+                                    return value < 2000;
+                                case "modern":
+                                    return value >= 2000 && value < 2010;
+                                case "new":
+                                    return value >= 2010;
+                            }
+                        }
+                    }, {
+                        getValue: function (view) {
+                            return view.getValue();
+                        },
+                        setValue: function (view, value) {
+                            view.setValue(value);
+                        }
+                    }
+                );
+            },
             onClick: {
                 "wxi-trash": function (e, id) {
                     this.remove(id);
@@ -325,9 +351,6 @@ const usersSortFilter = {
                     const age = randomInteger(1, 90);
                     const country = countryList[randomInteger(1, Object.keys(countryList).length)];
                     const userName = nameList[randomInteger(1, Object.keys(nameList).length)];
-                    console.log(typeof (age));
-                    console.log(typeof (country));
-                    console.log(typeof (userName));
                     $$("usersList").add({
                         name: userName,
                         country: country,
@@ -337,8 +360,6 @@ const usersSortFilter = {
             }
         }
     ],
-
-
 };
 
 const usersChart = {
@@ -367,7 +388,7 @@ const treetable = {
         },
         {
             id: "title",
-            name:"title",
+            name: "title",
             header: "Title",
             fillspace: 2,
             editor: "text",
@@ -389,7 +410,7 @@ const treetable = {
     },
     rules: {
         title: webix.rules.isNotEmpty,
-        price: function(value) {
+        price: function (value) {
             return value > 0 && webix.rules.isNotEmpty(value);
         }
     }
@@ -443,32 +464,6 @@ webix.ready(function () {
 
     // binding a form to datatable
     $$("form").bind($$("datatable"));
-
-    //simultaneously filtering by tab and header
-    $$("datatable").registerFilter(
-        $$("tabbar"), {
-            columnId: "year",
-            compare: function (value, filter) {
-                switch (filter) {
-                    case "all":
-                        return value;
-                    case "old":
-                        return value < 2000;
-                    case "modern":
-                        return value >= 2000 && value < 2010;
-                    case "new":
-                        return value >= 2010;
-                }
-            }
-        }, {
-            getValue: function (view) {
-                return view.getValue();
-            },
-            setValue: function (view, value) {
-                view.setValue(value);
-            }
-        }
-    );
 
     // syncing chart data to list data, grouping chart data by country
     $$("usersChart").sync($$("usersList"), function () {
