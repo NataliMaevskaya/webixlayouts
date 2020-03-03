@@ -77,45 +77,21 @@ const clearFieldsAndMessages = function () {
     });
 };
 
-// updating when id is defined, else add new item
-const addOrUpdateItem = function () {
-    const formId = $$("form"),
-        datatableId = $$("datatable");
-    formId.clearValidation();
-    if (formId.validate()) {
-
-        const itemData = formId.getValues(),
-            itemId = itemData.id;
-        if (itemId) {
-            datatableId.updateItem(itemId, itemData);
-            clearFields();
-            webix.message({
-                text: "Data is updated successfully!",
-                type: "success"
-            });
-        } else {
-            datatableId.add(itemData);
-            clearFields();
-            webix.message({
-                text: "Data is added successfully!",
-                type: "success"
-            });
-        }
-    } else {
-        webix.message({
-            text: "Wrong data in form! Check please!",
-            type: "warning"
-        });
+const saveForm = function () {
+    const form = $$('form');
+    if (form.isDirty()) {
+        if (!form.validate())
+            return false;
+        form.save();
     }
 };
-
 const formButtons = {
     cols: [{
             view: "button",
             id: "addBtn",
             value: "Add new",
             css: "webix_primary",
-            click: addOrUpdateItem
+            click: saveForm
         },
         {
             width: 10
@@ -179,46 +155,91 @@ const form = {
     }
 };
 
-// adding item's data to form fields
-const valuesToForm = function (id) {
-    const selectedItemValues = $$("datatable").getItem(id);
-    $$("form").setValues(selectedItemValues);
+const datatable = {
+    rows: [{
+            view: "tabbar",
+            id: "tabbar",
+            options: [{
+                    id: "all",
+                    value: "All"
+                },
+                {
+                    id: "old",
+                    value: "Old"
+                },
+                {
+                    id: "modern",
+                    value: "Modern"
+                },
+                {
+                    id: "new",
+                    value: "New"
+                }
+            ],
+            on: {
+                onChange: function () {
+                    $$("datatable").filterByAll();
+                }
+            }
+        },
+        {
+            view: "datatable",
+            id: "datatable",
+            scroll: "y",
+            select: true,
+            url: "../data/data.js",
+            hover: "hover-style",
+            sort: "multi",
+            columns: datatableColumns,
+            ready: function () {
+                this.registerFilter(
+                    $$("tabbar"), {
+                        columnId: "year",
+                        compare: function (value, filter) {
+                            switch (filter) {
+                                case "all":
+                                    return value;
+                                case "old":
+                                    return value < 2000;
+                                case "modern":
+                                    return value >= 2000 && value < 2010;
+                                case "new":
+                                    return value >= 2010;
+                            }
+                        }
+                    }, {
+                        getValue: function (view) {
+                            return view.getValue();
+                        },
+                        setValue: function (view, value) {
+                            view.setValue(value);
+                        }
+                    }
+                );
+            },
+            onClick: {
+                "wxi-trash": function (e, id) {
+                    this.remove(id);
+                    const values = $$("form").getValues();
+                    if (id.row === values.id) {
+                        clearFields();
+                    }
+                    return false;
+                }
+            },
+            scheme: {
+                $init: function (obj) {
+                    let votes = obj.votes;
+                    if (votes.includes(",")) {
+                        obj.votes = parseFloat(votes.replace(",", ".")) * 1000;
+                    }
+                    obj.categoryId = randomInteger(1, 4);
+                }
+            }
+        }
+    ]
 };
 
-const datatable = {
-    view: "datatable",
-    id: "datatable",
-    scroll: "y",
-    select: true,
-    url: "../data/data.js",
-    hover: "hover-style",
-    sort: "multi",
-    columns: datatableColumns,
-    onClick: {
-        "wxi-trash": function (e, id) {
-            this.remove(id);
-            const values = $$("form").getValues();
-            if (id.row === values.id) {
-                clearFields();
-            }
-            return false;
-        }
-    },
-    on: {
-        onAfterSelect: function (id) {
-            valuesToForm(id);
-            $$("form").clearValidation();
-        }
-    },
-    scheme: {
-        $init: function (obj) {
-            let votes = obj.votes;
-            if (votes.includes(",")) {
-                obj.votes = parseFloat(votes.replace(",", ".")) * 1000;
-            }
-        }
-    }
-};
 
 const footer = {
     template: "The software is provided by <a href='https://webix.com/'>https://webix.com/</a>. All rights reserved (c)",
@@ -230,19 +251,50 @@ const resizer = {
     view: "resizer"
 };
 
+// enabling list editing name field
+webix.protoUI({
+    name: "editlist",
+}, webix.EditAbility, webix.ui.list);
+
 const usersList = {
-    view: "list",
+    view: "editlist",
     id: "usersList",
     template: "#name# from #country# <span class='webix_icon wxi-close btn-right '></span>",
-    select: true,
-    css: "first-five-items",
-    onClick: {
-        "wxi-close": function (e, id) {
-            this.remove(id);
-            return false;
+    select: "cell",
+    editable: true,
+    editor: "text",
+    editValue: "name",
+    url: "../data/dataUsers.js",
+    on: {
+        onValidationError: function (key, obj) {
+            const text = "Name cannot be empty!!! ";
+            obj.name = text;
+        },
+        onClick: {
+            "wxi-close": function (e, id) {
+                this.remove(id);
+                return false;
+            }
         }
     },
-    url: "../data/dataUsers.js"
+    scheme: {
+        $change: function (item) {
+            if (item.age < 26) {
+                item.$css = {
+                    "background-color": "#fdfe89"
+                };
+            }
+        }
+    },
+    rules: {
+        name: webix.rules.isNotEmpty
+    }
+};
+
+const randomInteger = function (min, max) {
+    // получить случайное число от (min-0.5) до (max+0.5)
+    let rand = min - 0.5 + Math.random() * (max - min + 1);
+    return Math.round(rand);
 };
 
 const usersSortFilter = {
@@ -264,8 +316,8 @@ const usersSortFilter = {
         {
             view: "button",
             id: "sortAscBtn",
-            width: 150,
             value: "Sort asc",
+            width: 150,
             css: "webix_primary",
             on: {
                 onItemClick: function () {
@@ -277,8 +329,8 @@ const usersSortFilter = {
         {
             view: "button",
             id: "sortDescBtn",
-            width: 150,
             value: "Sort desc",
+            width: 150,
             css: "webix_primary",
             on: {
                 onItemClick: function () {
@@ -286,23 +338,41 @@ const usersSortFilter = {
                     usersList.sort("#name#", "desc", "string");
                 }
             }
+        },
+        {
+            view: "button",
+            id: "addUserBtn",
+            value: "Add new",
+            width: 150,
+            css: "webix_primary",
+            on: {
+                onItemClick: function () {
+
+                    const age = randomInteger(1, 90);
+                    const country = countryList[randomInteger(1, Object.keys(countryList).length)];
+                    const userName = nameList[randomInteger(1, Object.keys(nameList).length)];
+                    $$("usersList").add({
+                        name: userName,
+                        country: country,
+                        age: age
+                    });
+                }
+            }
         }
     ],
-
-
 };
 
 const usersChart = {
     view: "chart",
     id: "usersChart",
     type: "bar",
-    value: "#age#",
+    value: "#name#",
     barWidth: 35,
     xAxis: {
-        template: "#age#",
-        title: "Age"
+        template: "#country#",
+        title: "Country"
     },
-    url: "../data/dataUsers.js"
+    yAxis: {}
 };
 
 const treetable = {
@@ -310,6 +380,7 @@ const treetable = {
     id: "treetable",
     scroll: "y",
     select: "cell",
+    editable: true,
     columns: [{
             id: "id",
             header: "",
@@ -317,13 +388,17 @@ const treetable = {
         },
         {
             id: "title",
+            name: "title",
             header: "Title",
             fillspace: 2,
+            editor: "text",
             template: "{common.treetable()} #title#"
         },
         {
             id: "price",
+            name: "price",
             header: "Price",
+            editor: "text",
             fillspace: 2,
         }
     ],
@@ -331,6 +406,12 @@ const treetable = {
     on: {
         onAfterLoad: function () {
             this.openAll();
+        }
+    },
+    rules: {
+        title: webix.rules.isNotEmpty,
+        price: function (value) {
+            return value > 0 && webix.rules.isNotEmpty(value);
         }
     }
 };
@@ -378,6 +459,19 @@ webix.ready(function () {
             footer
         ]
     });
+
     $$("list").select("dashboard");
 
+    // binding a form to datatable
+    $$("form").bind($$("datatable"));
+
+    // syncing chart data to list data, grouping chart data by country
+    $$("usersChart").sync($$("usersList"), function () {
+        this.group({
+            by: "country",
+            map: {
+                name: ["country", "count"]
+            }
+        });
+    });
 });
