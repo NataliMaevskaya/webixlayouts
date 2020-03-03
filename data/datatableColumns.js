@@ -15,13 +15,20 @@ const datatableColumns = [{
         sort: "string"
     },
     {
-        id: "year",
+        id: "categoryId",
+        header: ["Category", {
+            content: "selectFilter"
+        }],
+        editor: "select",
+        options: "data/categories.js"
+    },
+    {
+        id: "rating",
         header: [
-            "Released", {
-                content: "numberFilter"
+            "Rating", {
+                content: "textFilter"
             }
-        ],
-        sort: "int"
+        ]
     },
     {
         id: "votes",
@@ -30,6 +37,11 @@ const datatableColumns = [{
                 content: "numberFilter"
             }
         ],
+        sort: "int"
+    },
+    {
+        id: "year",
+        header: "Year",
         sort: "int"
     },
     {
