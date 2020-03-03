@@ -20,15 +20,17 @@ const datatableColumns = [{
             content: "selectFilter"
         }],
         editor: "select",
-        options: "data/categories.js"
+        options: "data/categories.js",
+        sort: "string"
     },
     {
         id: "rating",
         header: [
             "Rating", {
-                content: "textFilter"
+                content: "numberFilter"
             }
-        ]
+        ],
+        sort: "int"
     },
     {
         id: "votes",

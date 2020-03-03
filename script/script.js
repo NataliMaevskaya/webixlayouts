@@ -78,11 +78,16 @@ const clearFieldsAndMessages = function () {
 };
 
 const saveForm = function () {
-    const form = $$('form');
+    const form = $$("form"),
+        datatable = $$("datatable");
     if (form.isDirty()) {
-        if (!form.validate())
+        if (!form.validate()) {
             return false;
-        form.save();
+        } else {
+            form.save();
+            form.clear();
+            datatable.showItem(datatable.getLastId());            
+        }
     }
 };
 const formButtons = {
@@ -191,55 +196,67 @@ const datatable = {
             hover: "hover-style",
             sort: "multi",
             columns: datatableColumns,
-            ready: function () {
-                this.registerFilter(
-                    $$("tabbar"), {
-                        columnId: "year",
-                        compare: function (value, filter) {
-                            switch (filter) {
-                                case "all":
-                                    return value;
-                                case "old":
-                                    return value < 2000;
-                                case "modern":
-                                    return value >= 2000 && value < 2010;
-                                case "new":
-                                    return value >= 2010;
+            on: {
+                ready: function () {
+                    this.registerFilter(
+                        $$("tabbar"), {
+                            columnId: "year",
+                            compare: function (value, filter) {
+                                switch (filter) {
+                                    case "all":
+                                        return true;
+                                    case "old":
+                                        return value < 2000;
+                                    case "modern":
+                                        return value >= 2000 && value < 2010;
+                                    case "new":
+                                        return value >= 2010;
+                                }
+                            }
+                        }, {
+                            getValue: function (view) {
+                                return view.getValue();
+                            },
+                            setValue: function (view, value) {
+                                view.setValue(value);
                             }
                         }
-                    }, {
-                        getValue: function (view) {
-                            return view.getValue();
-                        },
-                        setValue: function (view, value) {
-                            view.setValue(value);
-                        }
-                    }
-                );
+                    );
+                }
             },
             onClick: {
                 "wxi-trash": function (e, id) {
-                    this.remove(id);
-                    const values = $$("form").getValues();
-                    if (id.row === values.id) {
-                        clearFields();
-                    }
-                    return false;
+                    webix.confirm({
+                        text: "Record will be deleted permanently! Continue?"
+                    }).then(() => {
+                        this.remove(id);
+                        const values = $$("form").getValues();
+                        if (id.row === values.id) {
+                            clearFields();
+                        }
+                        return false;
+                    });
                 }
             },
             scheme: {
                 $init: function (obj) {
-                    let votes = obj.votes;
+                    let votes = obj.votes,
+                        rating = obj.rating;
+
                     if (votes.includes(",")) {
-                        obj.votes = parseFloat(votes.replace(",", ".")) * 1000;
+                        obj.votes = (+(votes.replace(",", "."))) * 1000;
                     }
+
+                    if (rating.includes(",")) {
+                        obj.rating = +(rating.replace(",", "."));
+                    }
+
                     obj.categoryId = randomInteger(1, 4);
                 }
             }
         }
     ]
 };
-
 
 const footer = {
     template: "The software is provided by <a href='https://webix.com/'>https://webix.com/</a>. All rights reserved (c)",
@@ -264,6 +281,8 @@ const usersList = {
     editable: true,
     editor: "text",
     editValue: "name",
+    scroll: "y",
+    layout: "y",
     url: "../data/dataUsers.js",
     on: {
         onValidationError: function (key, obj) {
@@ -272,8 +291,12 @@ const usersList = {
         },
         onClick: {
             "wxi-close": function (e, id) {
-                this.remove(id);
-                return false;
+                webix.confirm({
+                    text: "Record will be deleted permanently! Continue?"
+                }).then(() => {
+                    this.remove(id);
+                    return false;
+                });
             }
         }
     },
@@ -347,15 +370,16 @@ const usersSortFilter = {
             css: "webix_primary",
             on: {
                 onItemClick: function () {
-
+                    const usersList = $$("usersList");
                     const age = randomInteger(1, 90);
                     const country = countryList[randomInteger(1, Object.keys(countryList).length)];
                     const userName = nameList[randomInteger(1, Object.keys(nameList).length)];
-                    $$("usersList").add({
+                    usersList.add({
                         name: userName,
                         country: country,
                         age: age
                     });
+                    usersList.showItem(usersList.getLastId());
                 }
             }
         }
