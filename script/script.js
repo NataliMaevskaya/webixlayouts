@@ -86,7 +86,8 @@ const saveForm = function () {
         } else {
             form.save();
             form.clear();
-            datatable.showItem(datatable.getLastId());            
+            const lastId = datatable.getLastId();
+            datatable.showItem(lastId);            
         }
     }
 };
@@ -197,7 +198,7 @@ const datatable = {
             sort: "multi",
             columns: datatableColumns,
             on: {
-                ready: function () {
+                onAfterLoad: function () {
                     this.registerFilter(
                         $$("tabbar"), {
                             columnId: "year",
@@ -370,16 +371,19 @@ const usersSortFilter = {
             css: "webix_primary",
             on: {
                 onItemClick: function () {
-                    const usersList = $$("usersList");
-                    const age = randomInteger(1, 90);
-                    const country = countryList[randomInteger(1, Object.keys(countryList).length)];
-                    const userName = nameList[randomInteger(1, Object.keys(nameList).length)];
+                    const usersList = $$("usersList"),
+                        age = randomInteger(1, 90),
+                        country = countryList[randomInteger(1, Object.keys(countryList).length)],
+                        userName = nameList[randomInteger(1, Object.keys(nameList).length)];
                     usersList.add({
                         name: userName,
                         country: country,
                         age: age
                     });
-                    usersList.showItem(usersList.getLastId());
+                    const lastId = usersList.getLastId();
+
+                    usersList.showItem(lastId);
+                    usersList.select(lastId);
                 }
             }
         }
