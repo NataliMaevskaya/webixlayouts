@@ -1,5 +1,77 @@
 const currentYear = new Date().getFullYear();
 
+const categoriesCollection = new webix.DataCollection({
+    url: "../data/categories.json"
+});
+const usersCollection = new webix.DataCollection({
+    url: "../data/dataUsers.json",
+    scheme: {
+        $change: function (item) {
+            if (item.age < 26) {
+                item.$css = {
+                    "background-color": "#fdfe89"
+                };
+            }
+        }
+    }
+});
+
+const datatableColumns = [{
+        id: "id",
+        header: "",
+        width: 50,
+        css: "table-header"
+    },
+    {
+        id: "title",
+        header: [
+            "Film Title", {
+                content: "textFilter"
+            }
+        ],
+        fillspace: true,
+        sort: "string"
+    },
+    {
+        id: "categoryId",
+        header: ["Category", {
+            content: "selectFilter"
+        }],
+        editor: "richselect",
+        collection: categoriesCollection,
+        sort: "string"
+    },
+    {
+        id: "rating",
+        header: [
+            "Rating", {
+                content: "numberFilter"
+            }
+        ],
+        sort: "int"
+    },
+    {
+        id: "votes",
+        header: [
+            "Votes", {
+                content: "numberFilter"
+            }
+        ],
+        sort: "int"
+    },
+    {
+        id: "year",
+        header: "Year",
+        sort: "int"
+    },
+    {
+        id: "delete",
+        header: "",
+        template: "{common.trashIcon()}"
+
+    }
+];
+
 const toolbar = {
     view: "toolbar",
     id: "toolbar",
@@ -30,6 +102,9 @@ const menuList = {
     select: true,
     scroll: false,
     css: "webix_layout_clean",
+    ready: function () {
+        this.select(("dashboard"));
+    },
     on: {
         onAfterSelect: function (id) {
             $$(id).show();
@@ -55,7 +130,6 @@ const sideMenu = {
         menuLink
     ],
     css: "menu"
-
 };
 
 // clearing fields, validation, selection of all items
@@ -77,7 +151,7 @@ const clearFieldsAndMessages = function () {
     });
 };
 
-const saveForm = function () {
+const saveForm = function (id) {
     const form = $$("form"),
         datatable = $$("datatable");
     if (form.isDirty()) {
@@ -85,9 +159,13 @@ const saveForm = function () {
             return false;
         } else {
             form.save();
-            form.clear();
-            const lastId = datatable.getLastId();
-            datatable.showItem(lastId);            
+            const values = $$("form").getValues();
+            clearFields();
+            if (id.row === values.id) {
+                const lastId = datatable.getLastId();
+                datatable.showItem(lastId);
+            }
+
         }
     }
 };
@@ -143,6 +221,12 @@ const form = {
             label: "Votes",
             name: "votes",
             invalidMessage: "Cannot be more than 100000"
+        },
+        {
+            view: "richselect",
+            label: "CategoryId",
+            name: "categoryId",
+            options: categoriesCollection
         },
         formButtons,
         {}
@@ -251,8 +335,9 @@ const datatable = {
                     if (rating.includes(",")) {
                         obj.rating = +(rating.replace(",", "."));
                     }
-
-                    obj.categoryId = randomInteger(1, 4);
+                    if (!obj.categoryId) {
+                        obj.categoryId = randomInteger(1, 4);
+                    }
                 }
             }
         }
@@ -278,36 +363,21 @@ const usersList = {
     view: "editlist",
     id: "usersList",
     template: "#name# from #country# <span class='webix_icon wxi-close btn-right '></span>",
-    select: "cell",
+    select: true,
     editable: true,
     editor: "text",
     editValue: "name",
     scroll: "y",
-    layout: "y",
-    url: "../data/dataUsers.js",
+    onClick: {
+        "wxi-close": function (e, id) {
+            usersCollection.remove(id);
+            return false;
+        }
+    },
     on: {
         onValidationError: function (key, obj) {
             const text = "Name cannot be empty!!! ";
             obj.name = text;
-        },
-        onClick: {
-            "wxi-close": function (e, id) {
-                webix.confirm({
-                    text: "Record will be deleted permanently! Continue?"
-                }).then(() => {
-                    this.remove(id);
-                    return false;
-                });
-            }
-        }
-    },
-    scheme: {
-        $change: function (item) {
-            if (item.age < 26) {
-                item.$css = {
-                    "background-color": "#fdfe89"
-                };
-            }
         }
     },
     rules: {
@@ -316,7 +386,6 @@ const usersList = {
 };
 
 const randomInteger = function (min, max) {
-    // получить случайное число от (min-0.5) до (max+0.5)
     let rand = min - 0.5 + Math.random() * (max - min + 1);
     return Math.round(rand);
 };
@@ -375,7 +444,7 @@ const usersSortFilter = {
                         age = randomInteger(1, 90),
                         country = countryList[randomInteger(1, Object.keys(countryList).length)],
                         userName = nameList[randomInteger(1, Object.keys(nameList).length)];
-                    usersList.add({
+                    usersCollection.add({
                         name: userName,
                         country: country,
                         age: age
@@ -443,6 +512,61 @@ const treetable = {
         }
     }
 };
+const saveCategory = function () {
+    categoriesCollection.add({
+        value: "NEW CATEGORY"
+    }, 0);
+    const categoryDatatableId = $$("categoriesDatatable"),
+        lastId = categoryDatatableId.getLastId();
+
+    categoryDatatableId.showItem(lastId);
+};
+const adminButtons = {
+    cols: [{
+            view: "button",
+            id: "addCategoryBtn",
+            value: "Add category",
+            css: "webix_primary",
+            click: saveCategory
+        }
+    ]
+};
+const categoriesDatatable = {
+    view: "datatable",
+    id: "categoriesDatatable",
+    select: "cell",
+    editable: true,
+    columns: [{
+            id: "value",
+            name: "value",
+            header: "Film's category",
+            editor: "text",
+            fillspace: true,
+            sort: "string"
+        },
+        {
+            id: "deleteCategory",
+            header: "",
+            template: "{common.trashIcon()}"
+
+        }
+    ],
+    onClick: {
+        "wxi-trash": function (e, id) {
+            categoriesCollection.remove(id);
+            return false;
+        }
+    },
+    on: {
+        onValidationError: function (key, obj) {
+            const text = "Category name cannot be empty!!! ";
+            obj.value = text;
+        }
+    },
+    rules: {
+        value: webix.rules.isNotEmpty
+    }
+};
 
 const main = {
     animate: false,
@@ -459,8 +583,8 @@ const main = {
             rows: [treetable]
         },
         {
-            id: "locations",
-            template: "Admin view"
+            id: "admin",
+            rows: [adminButtons, categoriesDatatable]
         }
     ]
 };
@@ -488,13 +612,12 @@ webix.ready(function () {
         ]
     });
 
-    $$("list").select("dashboard");
-
     // binding a form to datatable
     $$("form").bind($$("datatable"));
 
-    // syncing chart data to list data, grouping chart data by country
-    $$("usersChart").sync($$("usersList"), function () {
+    // syncing data to usersList and usersChart, grouping chart data by country
+    $$("usersList").sync(usersCollection);
+    $$("usersChart").sync(usersCollection, function () {
         this.group({
             by: "country",
             map: {
@@ -502,4 +625,5 @@ webix.ready(function () {
             }
         });
     });
+    $$("categoriesDatatable").sync(categoriesCollection);
 });
