@@ -39,7 +39,7 @@ const datatableColumns = [{
         }],
         editor: "richselect",
         collection: categoriesCollection,
-        sort: "string"
+        sort: "text"
     },
     {
         id: "rating",
@@ -159,12 +159,11 @@ const saveForm = function (id) {
             return false;
         } else {
             form.save();
+
             const values = $$("form").getValues();
             clearFields();
-            if (id.row === values.id) {
-                const lastId = datatable.getLastId();
-                datatable.showItem(lastId);
-            }
+            const itemId = values.id || datatable.getLastId(); //updated or added
+            datatable.showItem(itemId);
 
         }
     }
@@ -282,7 +281,7 @@ const datatable = {
             sort: "multi",
             columns: datatableColumns,
             on: {
-                onAfterLoad: function () {
+                ready: function () {
                     this.registerFilter(
                         $$("tabbar"), {
                             columnId: "year",
@@ -329,7 +328,7 @@ const datatable = {
                         rating = obj.rating;
 
                     if (votes.includes(",")) {
-                        obj.votes = (+(votes.replace(",", "."))) * 1000;
+                        obj.votes = +(votes.replace(",", "."));
                     }
 
                     if (rating.includes(",")) {
@@ -513,23 +512,22 @@ const treetable = {
     }
 };
 const saveCategory = function () {
-    categoriesCollection.add({
-        value: "NEW CATEGORY"
-    }, 0);
-    const categoryDatatableId = $$("categoriesDatatable"),
-        lastId = categoryDatatableId.getLastId();
+    const addedId = categoriesCollection.add({}, 0);
+    const categoryDatatableId = $$("categoriesDatatable");
 
-    categoryDatatableId.showItem(lastId);
+    categoryDatatableId.edit({
+        row: addedId,
+        column: "value"
+    });
 };
 const adminButtons = {
     cols: [{
-            view: "button",
-            id: "addCategoryBtn",
-            value: "Add category",
-            css: "webix_primary",
-            click: saveCategory
-        }
-    ]
+        view: "button",
+        id: "addCategoryBtn",
+        value: "Add category",
+        css: "webix_primary",
+        click: saveCategory
+    }]
 };
 const categoriesDatatable = {
     view: "datatable",
@@ -542,7 +540,7 @@ const categoriesDatatable = {
             header: "Film's category",
             editor: "text",
             fillspace: true,
-            sort: "string"
+            sort: "text"
         },
         {
             id: "deleteCategory",
