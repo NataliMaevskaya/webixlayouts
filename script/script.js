@@ -406,15 +406,27 @@ const usersSortFilter = {
             }
         },
         {
-            view: "button",
+            view: "threeStateButton",
             id: "sortAscBtn",
-            value: "Sort asc",
-            width: 150,
-            css: "webix_primary",
+            state: 0,
+            states: {
+                0: "Off",
+                1: "Sort Asc",
+                2: "Sort Desc"
+            },
             on: {
-                onItemClick: function () {
-                    const usersList = $$("usersList");
-                    usersList.sort("#name#", "asc", "string");
+                onStateChange: function (state) {
+                    switch (state) {
+                        case 0:
+                            $$("usersList").sort("#id#", "asc");
+                            break;
+                        case 1:
+                            $$("usersList").sort("#name#", "asc");
+                            break;
+                        case 2:
+                            $$("usersList").sort("#name#", "desc");
+                            break;
+                    }
                 }
             }
         },
@@ -583,6 +595,13 @@ const main = {
         {
             id: "admin",
             rows: [adminButtons, categoriesDatatable]
+        },
+        {
+            id: "forms",
+            rows: [{
+                view: "generatedForm",
+                fields: ["one", "two"]
+            }, {}]
         }
     ]
 };
