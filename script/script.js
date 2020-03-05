@@ -540,7 +540,7 @@ const categoriesDatatable = {
             header: "Film's category",
             editor: "text",
             fillspace: true,
-            sort: "text"
+            sort: "string"
         },
         {
             id: "deleteCategory",
