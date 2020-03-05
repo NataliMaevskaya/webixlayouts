@@ -56,3 +56,20 @@
 .webix_el_threeStateButton.state-2 button:hover {
     background-color: #e0cb6e;
 }
+
+/* styles for view: "mybutton" */
+.webix_el_button.three_state .webix_button{
+    color:#666;
+}
+.webix_state_0 .webix_button, .webix_state_0 .webix_button:hover{
+   background:#cfffcf;
+ border-color:#b5ffb5;
+}
+.webix_state_1 .webix_button, .webix_state_1 .webix_button:hover{
+   background:#ffcdcd; 
+ border-color:#ffb4b4;
+}
+.webix_state_2 .webix_button, .webix_state_2 .webix_button:hover{
+   background:#ffffe0;
+ border-color:#ffffc7;
+}

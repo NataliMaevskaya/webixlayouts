@@ -13,11 +13,7 @@ webix.protoUI({
         const generatedElements = config.fields.map(function (field) {
             return {
                 view: "text",
-                label: field[0].toUpperCase() + field.slice(1),
-                // name: field,
-                // rules: {
-                //     field: webix.rules.isNotEmpty
-                // }
+                label: field[0].toUpperCase() + field.slice(1)
             };
         });
         config.elements = [{
