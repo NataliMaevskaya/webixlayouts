@@ -328,7 +328,7 @@ const datatable = {
                         rating = obj.rating;
 
                     if (votes.includes(",")) {
-                        obj.votes = +(votes.replace(",", "."));
+                        obj.votes = +(votes.replace(",", ""));
                     }
 
                     if (rating.includes(",")) {
