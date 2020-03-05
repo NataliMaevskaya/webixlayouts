@@ -13,5 +13,9 @@ const menuListSet = [{
     {
         id: "admin",
         title: "Admin"
+    },
+    {
+        id: "forms",
+        title: "Forms"
     }
 ];
